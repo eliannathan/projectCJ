@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Romantic Q&A Sequence</title>
+
+<link href="https://fonts.cdnfonts.com/css/autumn-crush" rel="stylesheet">
+
+<style>
+  :root { --vh: 100%; }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Autumn Crush', sans-serif;
+    overflow: hidden;
+    transition: background 0.5s ease;
+  }
+
+  /* Page styles */
+  .page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.6s ease;
+  }
+
+  .page.odd { background: linear-gradient(135deg, #ffb0de, #f78ac6); }
+  .page.even { background: #fff; }
+
+  .word-art {
+    position: absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: url("word_art_background2.png") center no-repeat;
+    background-size: cover;
+    opacity:0.3;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .content {
+    z-index:1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0px;
+  }
+
+  .landing-text { 
+    font-size: 8vw;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+  }
+
+  /* Text color per page type */
+  .page.odd .landing-text { color: white; }
+  .page.even .landing-text { color: black; text-shadow: none; }
+
+  .next-btn {
+    font-size: 24px;
+    padding: 10px 26px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+
+  .page.odd .next-btn { background: #fff; color: #ff69b4; }
+  .page.even .next-btn { background: #ff69b4; color: #fff; }
+
+  #question {
+    font-size: 9vw;
+    color: #fff;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    margin-bottom: 2vh;
+    text-align: center;
+  }
+
+  #buttons-container {
+    display: flex;
+    justify-content: center; 
+    gap: 20px; 
+    margin-top: 2vh;
+    position: relative;
+  }
+
+  button {
+      font-size: 20px;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      padding: 10px 26px;
+      white-space: nowrap;
+  }
+
+  #yes { background-color: #ff69b4; color:#fff; }
+  #no { background-color:#fff; color:#ff69b4; border:2px solid #ff69b4; }
+
+  #gif { display:none; text-align:center; position:relative; z-index:2; }
+  #gif img {
+    width: 90vw;      
+    max-width: 600px; 
+    height: auto;     
+    border-radius:16px;
+    animation: floatCat 2.5s ease-in-out infinite;
+  }
+
+  /* keep the big Yippee text centered; position is absolute to center on viewport */
+  #yippee {
+    font-size: 20vw;
+    color: #fff;
+    text-shadow: 4px 4px 12px rgba(0,0,0,0.6);
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+    display:none;
+    pointer-events:none;
+  }
+
+  /* Position the Next button centered horizontally and slightly lower under Yippee */
+  #yippee-next {
+    display: none;
+    position: absolute;
+    top: calc(50% + 22vh); /* moved slightly lower */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    padding: 10px 26px;
+    border: none;
+    border-radius: 30px;
+    background: #fff;
+    color: #ff69b4;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    cursor: pointer;
+    z-index: 3;
+  }
+
+  #gift-btn {
+    display: none;
+    margin-top: 24vh;
+    font-size: 4vw;
+    padding: 2vh 5vw;
+    border-radius: 5vw;
+    background: gold;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 0 2vw gold;
+    cursor: pointer;
+    z-index: 3;
+    position: relative;
+  }
+
+  .heart-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .main-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+    /* big googly eyes emoji silhouette */
+  #emoji-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 150vw;
+    opacity: 0.2;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .heart {
+    position:absolute;
+    bottom:-50px;
+    color: rgba(255,105,180,0.5);
+    font-size:24px;
+    animation: floatUp 6s linear infinite;
+  }
+
+    #page4 img.bg-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;  /* fills container like background */
+    opacity: 0.5;       /* faint */
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  @keyframes floatCat { 0%,100% { transform:translateY(0); } 50%{ transform:translateY(-15px); } }
+  @keyframes floatUp { from{ transform:translateY(0) scale(1); opacity:0.5;} to{ transform:translateY(-110vh) scale(1.5); opacity:0;} }
+</style>
+</head>
+<body>
+
+<!-- Landing Pages 1–12 -->
+<div class="page odd" id="page1">
+  <div class="word-art"></div>
+  <div class="content">
+    <h1 class="landing-text">Welcome, Pookie,<br>I mean.. <br>Ni Hao, Fine Shyt!</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page even" id="page2">
+  <div class="word-art"></div>
+  <div class="content">
+    <h1 class="landing-text">Been almost 2 months!<br><br>Time sure flies both <br>fast and slow with you!</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page odd" id="page3">
+  <div class="word-art"></div>
+  <div class="content">
+    <h1 class="landing-text">So, I'm pretty sure you <br>know what this is</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page even" id="page4">
+  <img class="bg-image" src="suscat.jpg" alt="Happy Cat" />
+  <!-- <div class="word-art"></div> -->
+  <div class="content">
+    <h1 class="landing-text">Or do you?</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page odd" id="page5">
+  <div class="word-art"></div>
+  <div class="content">
+    <h1 class="landing-text">We started off from a <br>compliment I gave you<br><br>Now we are inseparable!</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page even" id="page6">
+  <div class="word-art"></div>
+  <div class="content">
+    <h1 class="landing-text">Spending time with you<br>gave me a true definition <br>of the word: "PEAK"</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page odd" id="page7">
+  <div class="word-art"></div>
+  <div class="content">
+    <h1 class="landing-text">Weekends with you are<br>the only thing I<br>look forward to!</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page even" id="page8">
+  <div class="word-art"></div>
+  <div class="content">
+    <h1 class="landing-text">Your smile and your presence<br>has brignthened up my world<br>like never before</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page odd" id="page9">
+  <div class="word-art"></div>
+  <div class="content">
+    <h1 class="landing-text">I have made it my own personal duty<br>to protect your precious<br>smile for all eternity</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page even" id="page10">
+  <div class="word-art"></div>
+  <div class="content">
+    <h1 class="landing-text">You make me want to <br>be a better person<br><br>I like the version of me<br>when Im around you</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page odd" id="page11">
+  <div class="word-art"></div>
+  <div class="content">
+    <h1 class="landing-text">So, without<br>further ado,</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page even" id="page12">
+  <div class="word-art"></div>
+  <div class="content">
+    <h1 class="landing-text">The BIG Question...</h1>
+    <button class="next-btn" onclick="nextPage()">Drum Roll Please...</button>
+  </div>
+</div>
+
+<div class="page odd" id="page13">
+  <div class="word-art"></div>
+  <div class="content">
+    <h1 class="landing-text">What's for lunch?</h1>
+    <button class="next-btn" onclick="nextPage()">Just Kidding :)</button>
+  </div>
+</div>
+
+<!-- Main Question Page -->
+<div class="page odd" id="main-page">
+  <div class="heart-container"></div>
+  <!-- new emoji silhouette -->
+  <div id="emoji-bg">🥺</div>
+  <div class="main-content">
+    <h1 id="question">Let's Make It Official? 💕</h1>
+    <div id="buttons-container">
+      <button id="yes">Yes 💖</button>
+      <button id="no">No 😢</button>
+    </div>
+  </div>
+  <div id="gif">
+    <img src="cat-happy.gif" alt="Happy Cat" />
+    <p id="yippee">Yippee!</p>
+    <button class="next-btn" id="yippee-next" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<!-- Extra Landing Pages after Yippee -->
+<div class="page even" id="extra1">
+  <div class="content">
+    <h1 class="landing-text">Congratulations on<br>both of us!💕</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page odd" id="extra2">
+  <div class="content">
+    <h1 class="landing-text">Ready yourself..<br><br> for this is the beginning<br>of something so special</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page even" id="extra3">
+  <div class="content">
+    <h1 class="landing-text">No take backs!<br><br>You're now stuck with me💕<br>(forever...)</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page odd" id="extra4">
+  <div class="content">
+    <h1 class="landing-text">Hope you won't get <br>tired of me in all<br>my highs and lows</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page even" id="extra5">
+  <div class="content">
+    <h1 class="landing-text">It's now us against<br>the world<br><br>Together, we are unstoppable!</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page odd" id="extra6">
+  <div class="content">
+    <h1 class="landing-text">You're now officially<br>my favourite person<br>in the whole universe</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page even" id="extra7">
+  <div class="content">
+    <h1 class="landing-text">Can't wait to make<br>more memories with you</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page odd" id="extra7">
+  <div class="content">
+    <h1 class="landing-text">Our names fit so nice<br>next to eachother<br><br>"Elian and Cynthia!"<br>has a nice ring to it!</h1>
+    <button class="next-btn" onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<div class="page even" id="extra8">
+  <div class="content">
+    <h1 class="landing-text">And Oh? What's this?💖</h1>
+    <button id="gift-btn">Claim Your Gift 🎁</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+function setVH(){ document.documentElement.style.setProperty('--vh', `${window.innerHeight*0.01}px`); }
+setVH();
+window.addEventListener('resize', setVH);
+
+const pages = [...document.querySelectorAll('.page')];
+let currentPage = 0;
+
+// initialize all pages except first off-screen
+pages.forEach((page, index) => {
+  if(index !== 0) page.style.transform = 'translateY(100%)';
+});
+
+function nextPage() {
+  if(currentPage < pages.length-1){
+    const prev = pages[currentPage];
+    const next = pages[++currentPage];
+    next.style.transform = 'translateY(100%)';
+    requestAnimationFrame(() => next.style.transform = 'translateY(0)');
+    prev.style.transform = 'translateY(-100%)';
+
+    if(next.id === 'main-page') startHearts();
+
+    // show the gift button when arriving at the last extra page (extra3)
+    if(next.id === 'extra3') {
+      const gift = document.getElementById('gift-btn');
+      if (gift) gift.style.display = 'inline-block';
+    }
+  }
+}
+
+function startHearts(){
+  const container = document.querySelector('#main-page .heart-container');
+  setInterval(()=>{
+    const heart = document.createElement("div");
+    heart.classList.add("heart");
+    heart.innerHTML="❤️";
+    heart.style.left = Math.random()*100+"vw";
+    heart.style.fontSize = Math.random()*20+20+"px";
+    container.appendChild(heart);
+    setTimeout(()=>heart.remove(),6000);
+  }, 50);
+}
+
+const yesBtn=document.getElementById("yes");
+const noBtn=document.getElementById("no");
+const gif=document.getElementById("gif");
+const yippee=document.getElementById("yippee");
+const yippeeNext=document.getElementById("yippee-next");
+const giftBtn=document.getElementById("gift-btn");
+
+yesBtn.addEventListener("click", ()=>{
+    yesBtn.style.display = "none";
+    noBtn.style.display = "none";
+    document.getElementById("question").style.display = "none";
+    gif.style.display = "block";
+    yippee.style.display = "block";
+    yippeeNext.style.display = "inline-block"; // show Next after Yippee
+
+    let gradientBg = document.createElement("div");
+    gradientBg.style.position = "absolute";
+    gradientBg.style.top = 0;
+    gradientBg.style.left = 0;
+    gradientBg.style.width = "100%";
+    gradientBg.style.height = "100%";
+    gradientBg.style.zIndex = 1;
+    gradientBg.style.pointerEvents = "none";
+    document.getElementById("main-page").appendChild(gradientBg);
+
+    let hue1 = 0, hue2 = 60;
+    function animateRGB() {
+        hue1 = (hue1 + 4) % 360;
+        hue2 = (hue2 + 4) % 360;
+        gradientBg.style.background = `linear-gradient(135deg, hsl(${hue1},100%,75%), hsl(${hue2},100%,75%))`;
+        requestAnimationFrame(animateRGB);
+    }
+    animateRGB();
+
+    const colors = ['#ff4d88','#ff99cc','#ff1a75'];
+    setInterval(()=>{ 
+        confetti({particleCount:80,spread:60,origin:{x:0,y:1},colors:colors});
+        confetti({particleCount:80,spread:60,origin:{x:1,y:1},colors:colors});
+    },400);
+});
+
+giftBtn.addEventListener("click", ()=>{
+  alert("Obtained: Hugs and Kisses Coupon (Unlimited Use)💕");
+});
+
+(function setupNoBtn(){
+    let offsetX=0, offsetY=0;
+    const minMove=250;
+    noBtn.style.transformOrigin="center center";
+
+    noBtn.addEventListener("click",()=>{
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const btnW = noBtn.offsetWidth;
+        const btnH = noBtn.offsetHeight;
+        const rect = noBtn.getBoundingClientRect();
+        const centerX = rect.left + rect.width/2;
+        const centerY = rect.top + rect.height/2;
+
+        let moveX, moveY;
+        do {
+            moveX = (Math.random() - 0.5) * vw * 0.7;
+            moveY = (Math.random() - 0.5) * vh * 0.6;
+        } while (Math.sqrt(moveX*moveX + moveY*moveY) < minMove);
+
+        let newX = centerX + moveX;
+        let newY = centerY + moveY;
+
+        newX = Math.max(btnW/2, Math.min(vw - btnW/2, newX));
+        newY = Math.max(btnH/2, Math.min(vh - btnH/2, newY));
+
+        offsetX += newX - centerX;
+        offsetY += newY - centerY;
+
+        noBtn.style.transition = "transform 0.4s ease";
+        noBtn.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    });
+})();
+</script>
+</body>
+</html>
